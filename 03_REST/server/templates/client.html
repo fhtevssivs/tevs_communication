@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Person API Client</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+
+        label {
+            margin-top: 10px;
+            display: block;
+            font-weight: bold;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0 20px;
+            box-sizing: border-box;
+            border: 2px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 14px 20px;
+            margin: 8px 0;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        h1, h2 {
+            color: #333;
+        }
+
+        #response, #log {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Person API Client</h1>
+
+<label for="person-id">Person ID:</label>
+<input type="text" id="person-id"><br>
+<label for="name">Name:</label>
+<input type="text" id="name"><br>
+<label for="status">Status:</label>
+<input type="text" id="status"><br>
+</br>
+<div>
+    <button onclick="createOrUpdate()">Create/Update Person (POST/PUT)</button>
+    <br>
+    <button onclick="getPerson()">Get Person</button>
+    </br>
+    <button onclick="deletePerson()">Delete Person</button>
+    </br>
+    <button onclick="getPersons()">Get All Persons</button>
+    <button onclick="getRandomPerson()">Get Random Person</button>
+    </br>
+</div>
+<!-- Output area for displaying API responses -->
+<h2>API Responses</h2>
+<pre id="response"></pre>
+<h2>API Log</h2>
+<pre id="log"></pre>    <!-- JavaScript code for interacting with the Person REST API -->
+<script>
+    const BASE_URL = window.location.protocol + '//' + window.location.hostname + ":"+ window.location.port + '/persons/';
+
+    function createOrUpdate() {
+        const person_id = document.getElementById("person-id").value;
+        const name = document.getElementById("name").value;
+        const status = document.getElementById("status").value;
+
+        const url = person_id ? BASE_URL + person_id : BASE_URL;
+        const method = person_id ? "PUT" : "POST";
+        if (method == "PUT") {
+            document.getElementById("log").textContent += `Accessing HTTP PUT - ${url}\n`
+        } else {
+            document.getElementById("log").textContent += `Accessing HTTP POST - ${url}\n`
+        }
+
+        fetch(url, {
+            method: method,
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({"name": name, "status": status})
+        })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("response").textContent = JSON.stringify(data, null, 2);
+            })
+            .catch(error => {
+                console.error(error);
+                document.getElementById("response").textContent = error;
+            });
+    }
+
+    function getPerson() {
+        const person_id = document.getElementById("person-id").value;
+        document.getElementById("log").textContent += `Accessing HTTP GET - ${BASE_URL}${person_id}\n`
+        fetch(BASE_URL + person_id)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                console.log(data.name);
+                document.getElementById("name").value = data.name;
+                document.getElementById("status").value = data.status;
+                const result = JSON.stringify(data, null, 2);
+                document.getElementById("response").textContent = result
+            })
+            .catch(error => {
+                console.error(error);
+                document.getElementById("response").textContent = error;
+            });
+    }
+
+    function getRandomPerson() {
+        document.getElementById("log").textContent += `Accessing HTTP GET - ${BASE_URL}getRandomPerson\n`
+        fetch(BASE_URL + "getRandomPerson")
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                console.log(data.name);
+                document.getElementById("person-id").value = data.id;
+                document.getElementById("name").value = data.name;
+                document.getElementById("status").value = data.status;
+                document.getElementById("response").textContent = JSON.stringify(data, null, 2);
+            })
+            .catch(error => {
+                console.error(error);
+                document.getElementById("response").textContent = error;
+            });
+    }
+
+
+    function getPersons() {
+        document.getElementById("log").textContent += `Accessing HTTP GET - ${BASE_URL}\n`
+        fetch(BASE_URL)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("response").textContent = JSON.stringify(data, null, 2);
+            })
+            .catch(error => {
+                console.error(error);
+                document.getElementById("response").textContent = error;
+            });
+    }
+
+    function deletePerson() {
+        const person_id = document.getElementById("person-id").value;
+        document.getElementById("log").textContent += `Accessing HTTP DELETE - ${BASE_URL}${person_id}\n`
+        fetch(BASE_URL + person_id, {
+            method: "DELETE"
+        })
+            .then(response => {
+                if (response.status === 204) {
+                    document.getElementById("response").textContent = "Person deleted successfully.";
+                } else {
+                    throw new Error("Failed to delete person.");
+                }
+            })
+            .catch(error => {
+                console.error(error);
+                document.getElementById("response").textContent = error;
+            });
+    }
+</script>
+</body>
+</html>

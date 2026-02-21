@@ -1,0 +1,32 @@
+services:
+    rabbitmq:
+        image: rabbitmq:3-management-alpine
+        restart: unless-stopped
+        container_name: 'rabbitmq'
+        ports:
+            - "5672:5672"
+            - "15672:15672"
+
+    tevs_consumer:
+        container_name: tevs_consumer
+        restart: unless-stopped
+        build:
+            context: consumer
+            dockerfile: Dockerfile
+        image: tevs_consumer:latest
+        depends_on:
+            - rabbitmq
+
+    tevs_client:
+        container_name: tevs_client
+        restart: unless-stopped
+        build:
+            context: client
+            dockerfile: Dockerfile
+        image: tevs_client:latest
+        depends_on:
+            - rabbitmq
+
+networks:
+  default:
+      name: webapp_network

@@ -1,0 +1,15 @@
+services:
+    consumer:
+        container_name: tevs_rest_demo
+        restart: unless-stopped
+        build:
+            context: server
+            dockerfile: Dockerfile
+        image: tevs_rest_demo:latest
+        ports:
+          - "3001:3001"
+
+networks:
+  default:
+      name: webapp_network
+      external: true

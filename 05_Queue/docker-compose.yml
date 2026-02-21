@@ -1,0 +1,12 @@
+services:
+    rabbitmq:
+        image: rabbitmq:3-management-alpine
+        restart: unless-stopped
+        container_name: 'rabbitmq'
+        ports:
+            - "5672:5672"
+            - "15672:15672"
+
+networks:
+  default:
+      name: webapp_network
